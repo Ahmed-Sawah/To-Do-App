@@ -39,7 +39,7 @@ const Render = function (task, disabled = true) {
          aria-hidden="true"
        ></i>
       </div>
-    </form> 
+    </form>
   </li>
   `;
 
@@ -72,7 +72,7 @@ const generateMarkupAndRender = function (target, disabled = false) {
          aria-hidden="true"
        ></i>
       </div>
-    </form> 
+    </form>
   </li>
   `;
 
@@ -127,8 +127,16 @@ addBtn.forEach(btn =>
       'click',
       e => {
         if (e.target.classList.contains('remove__btn')) {
-          insertedInput.parentElement.remove();
-          deleteTaskWith(insertedInput.dataset.id);
+          // Ask the user to confirm the deletion
+          const confirmDelete = confirm(
+            `Are you sure you want to delete ${insertedInput.value}?`
+          );
+
+          // If the user confirms, remove the task item from the list
+          if (confirmDelete) {
+            insertedInput.parentElement.remove();
+            deleteTaskWith(insertedInput.dataset.id);
+          }
         }
       }
     );
@@ -184,10 +192,6 @@ editBtn.forEach(btn =>
     const clickedElInput = e.target.parentElement.previousElementSibling;
     clickedElInput.removeAttribute('disabled');
     clickedElInput.focus();
-    // editTaskWith(
-    //   clickedElInput,
-    //   e.target.parentElement.parentElement.parentElement.dataset.id
-    // );
   })
 );
 
@@ -198,10 +202,18 @@ removeBtn.forEach(btn =>
     const clickedElInput = e.target.parentElement.previousElementSibling;
     if (e.target.classList.contains('remove__btn')) {
       // Remove Task From Local Storage
-      deleteTaskWith(
-        e.target.parentElement.parentElement.parentElement.dataset.id
+      // Ask the user to confirm the deletion
+      const confirmDelete = confirm(
+        `Are you sure you want to delete ${clickedElInput.value}?`
       );
-      clickedElInput.parentElement.remove();
+
+      // If the user confirms, remove the task item from the list
+      if (confirmDelete) {
+        deleteTaskWith(
+          e.target.parentElement.parentElement.parentElement.dataset.id
+        );
+        clickedElInput.parentElement.remove();
+      }
     }
   })
 );
@@ -215,23 +227,10 @@ forms.forEach(form =>
       ? [
           clickedElInput.setAttribute('disabled', ''),
           addElementToArray(clickedElInput, e.target),
-          editTaskWith(
-            clickedElInput,
-            e.target.parentElement.parentElement.parentElement.dataset.id
-          ),
         ]
       : alert('Please Fill Out Your Task . . .');
   })
 );
-
-const editTaskWith = (task, taskId) => {
-  const elementIndex = arrOfTasks.findIndex(task => task.id === taskId);
-  arrOfTasks[elementIndex].title = task.value;
-  arrOfTasks[elementIndex].id = task.id;
-  arrOfTasks[elementIndex].state =
-    task.parentElement.parentElement.parentElement.parentElement.classList[0];
-  addDataToLocalStorageFrom(arrOfTasks);
-};
 
 const deleteTaskWith = taskId => {
   arrOfTasks = arrOfTasks.filter(task => task.id != taskId);
